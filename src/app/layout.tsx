@@ -1,12 +1,23 @@
-import { Outfit } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter_Tight } from "next/font/google";
+import "./globals.css";
 import "flatpickr/dist/flatpickr.css";
-import { SidebarProvider } from '@/context/SidebarContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+import { SidebarProvider } from "@/context/SidebarContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const outfit = Outfit({
+const interTight = Inter_Tight({
   subsets: ["latin"],
+  variable: "--font-inter-tight",
 });
+
+export const metadata: Metadata = {
+  title: "Aivory Admin",
+  description: "Aivory Admin Dashboard",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -14,11 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
-        <ThemeProvider>
+    <html lang="en" className="dark">
+      <body className={`${interTight.variable} font-inter-tight bg-[#353531]`}>
+        <AuthProvider>
           <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

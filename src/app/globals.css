@@ -5,6 +5,17 @@
 @theme {
   --font-*: initial;
   --font-outfit: Outfit, sans-serif;
+  --font-inter-tight: "Inter Tight", Inter, sans-serif;
+
+  /* Aivory design tokens */
+  --color-accent: #00e59e;
+  --color-accent-dim: rgba(0, 229, 158, 0.12);
+  --color-bg-main: #353531;
+  --color-bg-elevated: #3a3a36;
+  --color-border-soft: rgba(255, 255, 255, 0.07);
+  --color-text-primary: #f7f7f7;
+  --color-text-secondary: #a1a1aa;
+  --radius-card: 18px;
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -187,9 +198,25 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+  html {
+    color-scheme: dark;
   }
+  body {
+    @apply relative font-normal z-1;
+    background: #353531;
+    color: #f7f7f7;
+    font-family: var(--font-inter-tight), "Inter Tight", Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Legacy CSS custom properties for non-Tailwind usage */
+:root {
+  --accent: #00e59e;
+  --accent-dim: rgba(0, 229, 158, 0.12);
+  --bg-elevated: #3a3a36;
+  --border-soft: rgba(255, 255, 255, 0.07);
+  --card-radius: 18px;
 }
 
 @utility menu-item {
