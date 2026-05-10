@@ -15,6 +15,7 @@ if (!process.env.NEXT_PUBLIC_API_URL) {
 }
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactStrictMode: true,
   webpack(config) {
     config.module.rules.push({
