@@ -45,7 +45,7 @@ services:
       - "traefik.http.routers.app.rule=Host(`admin.aivory.id`)"
       - "traefik.http.routers.app.entrypoints=websecure"
       - "traefik.http.routers.app.tls.certresolver=letsencrypt"
-      - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.http.services.app.loadbalancer.server.port=3300"
 
 networks:
   app-network:
