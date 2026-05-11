@@ -33,10 +33,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Fetch full user object to get complete metadata
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    await supabase.auth.signOut();
+    return NextResponse.json(
+      { error: "Failed to fetch user data" },
+      { status: 500 }
+    );
+  }
+
   // Resolve account_type — check user_metadata first, then app_metadata
   const accountType: string | undefined =
-    data.user.user_metadata?.account_type ??
-    data.user.app_metadata?.account_type;
+    userData.user.user_metadata?.account_type ??
+    userData.user.app_metadata?.account_type;
 
   if (!accountType || !ALLOWED_ACCOUNT_TYPES.includes(accountType)) {
     // Sign out the Supabase session immediately — this user has no admin access
