@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
 export async function GET(request: NextRequest) {
   try {
     // 1. Verify authentication
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const accessToken = cookieStore.get("sb-access-token")?.value;
 
     if (!accessToken) {
@@ -39,11 +39,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. List all users with admin or super admin account type
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.listUsers({
-      page: 1,
-      perPage: 1000,
-    });
+    // 2. List all users using auth.admin.listUsers
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
 
     if (listError) {
       console.error("Error listing users:", listError);
@@ -54,12 +51,12 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Filter and transform to admin list format
-    const admins = users
-      .filter((u) => {
+    const admins = (users || [])
+      .filter((u: any) => {
         const type = u.user_metadata?.account_type;
         return type === "admin" || type === "superadmin";
       })
-      .map((u) => ({
+      .map((u: any) => ({
         id: u.id,
         email: u.email,
         full_name: u.user_metadata?.full_name || "",

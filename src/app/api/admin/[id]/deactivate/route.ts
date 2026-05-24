@@ -8,11 +8,11 @@ import { cookies } from "next/headers";
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 1. Verify authentication and super admin status
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const accessToken = cookieStore.get("sb-access-token")?.value;
 
     if (!accessToken) {
@@ -44,12 +44,21 @@ export async function POST(
     // 2. Parse request body
     const body = await request.json();
     const { banDuration } = body;
+    const id = await params;
 
-    // 3. Get target admin
-    const { data: targetUser, error: fetchError } =
-      await supabaseAdmin.auth.getUserById(params.id);
+    // 3. Get target admin using auth.admin.listUsers and filter
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      return NextResponse.json(
+        { error: "Failed to fetch admin users" },
+        { status: 500 }
+      );
+    }
 
-    if (fetchError || !targetUser.user) {
+    const targetUser = users?.find((u: any) => u.id === id);
+    
+    if (!targetUser) {
       return NextResponse.json(
         { error: "Admin user not found" },
         { status: 404 }
@@ -57,7 +66,7 @@ export async function POST(
     }
 
     // Prevent self-deactivation
-    if (targetUser.user.id === user.id) {
+    if (targetUser.id === user.id) {
       return NextResponse.json(
         { error: "Cannot deactivate your own account" },
         { status: 400 }
@@ -65,7 +74,7 @@ export async function POST(
     }
 
     // Prevent deactivating other super admins
-    const targetAccountType = targetUser.user.user_metadata?.account_type;
+    const targetAccountType = targetUser.user_metadata?.account_type;
     if (targetAccountType === "superadmin") {
       return NextResponse.json(
         { error: "Cannot deactivate super admin accounts" },
@@ -73,19 +82,18 @@ export async function POST(
       );
     }
 
-    // 4. Update user ban status
-    const updateData: any = {};
-
-    if (banDuration && banDuration !== "reactivate") {
-      // Set ban duration
-      updateData.ban_duration = banDuration;
-    } else {
-      // Reactivate - remove ban
-      updateData.ban_duration = null;
-    }
+    // 4. Update user ban status using auth.admin.updateUserById
+    // In Supabase v2, updateUserById takes user_id as string and attributes as object
+    // Ban info is stored in user_metadata
+    const updateData: any = {
+      user_metadata: {
+        ...targetUser.user_metadata,
+        ban_duration: banDuration && banDuration !== "reactivate" ? banDuration : null,
+      },
+    };
 
     const { data: updatedUser, error: updateError } =
-      await supabaseAdmin.auth.adminUpdateUserById(params.id, updateData);
+      await (supabaseAdmin.auth.admin as any).updateUserById(id, updateData);
 
     if (updateError) {
       console.error("Error updating admin status:", updateError);
@@ -102,7 +110,7 @@ export async function POST(
         id: updatedUser.user.id,
         email: updatedUser.user.email,
         banned_at: updatedUser.user.banned_at,
-        ban_duration: updatedUser.user.ban_duration,
+        ban_duration: updatedUser.user.user_metadata?.ban_duration,
       },
       action: banDuration === "reactivate" ? "reactivated" : "deactivated",
     });

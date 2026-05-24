@@ -7,6 +7,7 @@ interface DeactivateModalProps {
   isOpen: boolean;
   adminId: string;
   adminEmail: string;
+  isReactivation?: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -15,6 +16,7 @@ export function DeactivateModal({
   isOpen,
   adminId,
   adminEmail,
+  isReactivation = false,
   onClose,
   onSuccess,
 }: DeactivateModalProps) {
