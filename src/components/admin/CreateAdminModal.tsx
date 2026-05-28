@@ -239,7 +239,7 @@ export function CreateAdminModal({ isOpen, onClose, onSuccess }: CreateAdminModa
                       onClick={handleCopyPassword}
                       className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
                     >
-                      <Copy size={={16}} />
+                      <Copy size={16} />
                       {copySuccess ? "Copied!" : "Copy password"}
                     </button>
                   )}

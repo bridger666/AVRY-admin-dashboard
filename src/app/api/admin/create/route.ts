@@ -9,7 +9,7 @@ import { cookies } from "next/headers";
 export async function POST(request: NextRequest) {
   try {
     // 1. Verify authentication and super admin status
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const accessToken = cookieStore.get("sb-access-token")?.value;
 
     if (!accessToken) {
@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 4. Create user with Supabase Admin API
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.adminCreateUser({
+    // 4. Create user with Supabase Admin API using auth.admin.createUser
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: finalPassword,
       email_confirm: true, // Auto-confirm email so admin can login immediately
