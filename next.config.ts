@@ -19,8 +19,17 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   webpack(config) {
     config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"],
+      test: /\.svg$/i,
+      use: [
+        {
+          loader: "@svgr/webpack",
+          options: {
+            svgo: false,
+            titleProp: true,
+            ref: true,
+          },
+        },
+      ],
     });
     return config;
   },
